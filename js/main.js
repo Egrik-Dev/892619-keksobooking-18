@@ -1,3 +1,5 @@
+'use strict';
+
 var TYPE_ROOM = ['palace', 'flat', 'house', 'bungalo'];
 var CHECKIN = ['12:00', '13:00', '14:00'];
 var CHECKOUT = ['12:00', '13:00', '14:00'];
@@ -6,7 +8,7 @@ var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.g
 var advTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 var mapBlock = document.querySelector('.map');
 var blockMapPins = mapBlock.querySelector('.map__pins');
-var body = getComputedStyle(document.body);
+var body = 1200;
 var pinWidth = 50;
 var pinHeight = 70;
 
@@ -25,7 +27,7 @@ var generateRandomArr = function (arr) {
   }
 
   return newArr;
-}
+};
 
 var generateAds = function (quantity) {
   var ads = [];
@@ -48,9 +50,9 @@ var generateAds = function (quantity) {
       },
 
       location: {
-        x: getRandomNum(0, parseInt(body.maxWidth)),
+        x: getRandomNum(0, body),
         y: getRandomNum(130, 630)
-      }})
+      }});
 
     ads[i].offer.address = ads[i].location.x + ', ' + ads[i].location.y;
     ads[i].offer.features = generateRandomArr(FEATURES);
@@ -58,10 +60,9 @@ var generateAds = function (quantity) {
   }
 
   return ads;
-}
+};
 
 var ads = generateAds(8);
-console.log(ads);
 
 mapBlock.classList.remove('map--faded');
 

@@ -2,10 +2,10 @@
 
 var TYPE_ROOM = ['palace', 'flat', 'house', 'bungalo'];
 var MAP_TYPE_ROOM = {
-  palace: 'Дворец',
-  flat: 'Квартира',
-  house: 'Дом',
-  bungalo: 'Бунгало',
+  PALACE: 'Дворец',
+  FLAT: 'Квартира',
+  HOUSE: 'Дом',
+  BUNGALO: 'Бунгало',
 };
 var CHECKIN = ['12:00', '13:00', '14:00'];
 var CHECKOUT = ['12:00', '13:00', '14:00'];
@@ -93,7 +93,7 @@ var createCard = function (arrItem) {
   cardElement.querySelector('.popup__title').textContent = arrItem.offer.title;
   cardElement.querySelector('.popup__text--address').textContent = arrItem.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = arrItem.offer.price + '₽/ночь';
-  cardElement.querySelector('.popup__type').textContent = MAP_TYPE_ROOM[arrItem.offer.type];
+  cardElement.querySelector('.popup__type').textContent = MAP_TYPE_ROOM[arrItem.offer.type.toUpperCase()];
   cardElement.querySelector('.popup__text--capacity').textContent = arrItem.offer.rooms + ' комнаты для ' + arrItem.offer.guests + ' гостей';
   cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + arrItem.offer.checkin + ', выезд до ' + arrItem.offer.checkout;
   cardElement.querySelector('.popup__description').textContent = arrItem.offer.description;
@@ -119,9 +119,6 @@ var createCard = function (arrItem) {
   return cardElement;
 };
 
-var firstCard = createCard(ads[0]);
-blockMapPins.after(firstCard);
-
 var renderPins = function (arr) {
   var fragment = document.createDocumentFragment();
   for (var j = 0; j < arr.length; j++) {
@@ -131,3 +128,5 @@ var renderPins = function (arr) {
 };
 
 renderPins(ads);
+var firstCard = createCard(ads[0]);
+blockMapPins.after(firstCard);

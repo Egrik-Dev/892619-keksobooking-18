@@ -53,7 +53,7 @@ var allFieldSet = document.querySelectorAll('fieldset');
 var mainPin = document.querySelector('.map__pin--main');
 var allFilters = document.querySelectorAll('.map__filter');
 var form = document.querySelector('.ad-form');
-var adress = document.querySelector('#address');
+var address = document.querySelector('#address');
 var roomNumber = document.querySelector('[name="rooms"]');
 var capacity = document.querySelector('[name="capacity"]');
 
@@ -63,14 +63,14 @@ var calcStartPin = function () {
   return x + ', ' + y;
 };
 
-adress.setAttribute('value', calcStartPin());
+address.setAttribute('value', calcStartPin());
 
-var calcXPin = function (XCoordinate, pinWidth) {
-  return Math.round(XCoordinate - (pinWidth / 2));
+var calcXPin = function (xCoordinate, pinWidth) {
+  return Math.round(xCoordinate - (pinWidth / 2));
 };
 
-var calcYPin = function (YCoordinate, pinHeight) {
-  return Math.round(YCoordinate - pinHeight);
+var calcYPin = function (yCoordinate, pinHeight) {
+  return Math.round(yCoordinate - pinHeight);
 };
 
 var makeDisabledForm = function (arr) {
@@ -80,7 +80,7 @@ var makeDisabledForm = function (arr) {
   }
 };
 
-var makeEnadledForm = function (arr) {
+var makeEnabledForm = function (arr) {
   for (var i = 0; i < arr.length; i++) {
     var elem = arr[i];
     elem.removeAttribute('disabled');
@@ -94,10 +94,10 @@ var changeEnableStatus = function () {
   mapBlock.classList.remove('map--faded');
   renderPins(ads);
   blockMapPins.after(firstCard);
-  makeEnadledForm(allFieldSet);
-  makeEnadledForm(allFilters);
+  makeEnabledForm(allFieldSet);
+  makeEnabledForm(allFilters);
   form.classList.remove('ad-form--disabled');
-  adress.value = calcXPin(parseInt(mainPin.style.left, 10), MAIN_PIN_WIDTH) + ', ' + calcYPin(parseInt(mainPin.style.top, 10), MAIN_PIN_HEIGHT);
+  address.value = calcXPin(parseInt(mainPin.style.left, 10), MAIN_PIN_WIDTH) + ', ' + calcYPin(parseInt(mainPin.style.top, 10), -MAIN_PIN_HEIGHT);
 };
 
 var getRandomNum = function (min, max) {
@@ -188,11 +188,14 @@ var createCard = function (arrItem) {
 };
 
 var renderPins = function (arr) {
-  var fragment = document.createDocumentFragment();
-  for (var j = 0; j < arr.length; j++) {
-    fragment.appendChild(createPin(arr[j]));
+  var pin = document.querySelectorAll('.map__pin');
+  if (pin.length === 1) {
+    var fragment = document.createDocumentFragment();
+    for (var j = 0; j < arr.length; j++) {
+      fragment.appendChild(createPin(arr[j]));
+    }
+    blockMapPins.appendChild(fragment);
   }
-  blockMapPins.appendChild(fragment);
 };
 
 var firstCard = createCard(ads[0]);

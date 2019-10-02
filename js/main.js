@@ -45,6 +45,7 @@ var MIN_Y = 130;
 var MAX_Y = 630;
 var QUANTITY_PINS = 8;
 var ENTER_KEYCODE = 13;
+var ads = [];
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 var mapBlock = document.querySelector('.map');
@@ -91,13 +92,17 @@ makeDisabledForm(allFieldSet);
 makeDisabledForm(allFilters);
 
 var changeEnableStatus = function () {
-  mapBlock.classList.remove('map--faded');
-  renderPins(ads);
-  blockMapPins.after(firstCard);
-  makeEnabledForm(allFieldSet);
-  makeEnabledForm(allFilters);
-  form.classList.remove('ad-form--disabled');
-  address.value = calcXPin(parseInt(mainPin.style.left, 10), MAIN_PIN_WIDTH) + ', ' + calcYPin(parseInt(mainPin.style.top, 10), -MAIN_PIN_HEIGHT);
+  if (ads.length === 0) {
+    mapBlock.classList.remove('map--faded');
+    ads = generateAds(QUANTITY_PINS);
+    renderPins(ads);
+    var firstCard = createCard(ads[0]);
+    blockMapPins.after(firstCard);
+    makeEnabledForm(allFieldSet);
+    makeEnabledForm(allFilters);
+    form.classList.remove('ad-form--disabled');
+    address.value = calcXPin(parseInt(mainPin.style.left, 10), MAIN_PIN_WIDTH) + ', ' + calcYPin(parseInt(mainPin.style.top, 10), -MAIN_PIN_HEIGHT);
+  }
 };
 
 var getRandomNum = function (min, max) {
@@ -106,7 +111,7 @@ var getRandomNum = function (min, max) {
 };
 
 var generateAds = function (quantity) {
-  var ads = [];
+  var array = [];
 
   for (var i = 0; i < quantity; i++) {
     var obj = {
@@ -134,12 +139,10 @@ var generateAds = function (quantity) {
 
     obj.offer.address = obj.location.x + ', ' + obj.location.y;
 
-    ads.push(obj);
+    array.push(obj);
   }
-  return ads;
+  return array;
 };
-
-var ads = generateAds(QUANTITY_PINS);
 
 var createPin = function (arrItem) {
   var pinElement = pinTemplate.cloneNode(true);
@@ -197,8 +200,6 @@ var renderPins = function (arr) {
     blockMapPins.appendChild(fragment);
   }
 };
-
-var firstCard = createCard(ads[0]);
 
 mainPin.addEventListener('mousedown', function () {
   changeEnableStatus();

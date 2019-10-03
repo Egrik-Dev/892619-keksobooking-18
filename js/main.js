@@ -7,6 +7,24 @@ var MAP_TYPE_ROOM = {
   HOUSE: 'Дом',
   BUNGALO: 'Бунгало',
 };
+var ROOMS_CAPACITY_MAP = {
+  '1': {
+    'guests': ['1'],
+    'errorText': '1 комната для 1 гостя'
+  },
+  '2': {
+    'guests': ['1', '2'],
+    'errorText': '2 комнаты для 1 или 2 гостей'
+  },
+  '3': {
+    'guests': ['1', '2', '3'],
+    'errorText': '3 комнаты для 1, 2 или 3 гостей'
+  },
+  '100': {
+    'guests': ['0'],
+    'errorText': '100 комнат не для гостей'
+  },
+};
 var CHECKIN = ['12:00', '13:00', '14:00'];
 var CHECKOUT = ['12:00', '13:00', '14:00'];
 var FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
@@ -14,6 +32,8 @@ var PHOTOS = ['http://o0.github.io/assets/images/tokyo/hotel1.jpg', 'http://o0.g
 var BODY_WIDTH = 1200;
 var PIN_WIDTH = 50;
 var PIN_HEIGHT = 70;
+var MAIN_PIN_WIDTH = 65;
+var MAIN_PIN_HEIGHT = 80;
 var MIN_PRICE = 500;
 var MAX_PRICE = 10000;
 var MIN_ROOMS = 1;
@@ -24,10 +44,66 @@ var MIN_X = 0;
 var MIN_Y = 130;
 var MAX_Y = 630;
 var QUANTITY_PINS = 8;
+var ENTER_KEYCODE = 13;
+var ads = [];
 var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
 var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 var mapBlock = document.querySelector('.map');
 var blockMapPins = mapBlock.querySelector('.map__pins');
+var allFieldSet = document.querySelectorAll('fieldset');
+var mainPin = document.querySelector('.map__pin--main');
+var allFilters = document.querySelectorAll('.map__filter');
+var form = document.querySelector('.ad-form');
+var address = document.querySelector('#address');
+var roomNumber = document.querySelector('[name="rooms"]');
+var capacity = document.querySelector('[name="capacity"]');
+
+var calcStartPin = function () {
+  var x = parseInt(mainPin.style.left, 10);
+  var y = parseInt(mainPin.style.top, 10);
+  return x + ', ' + y;
+};
+
+address.setAttribute('value', calcStartPin());
+
+var calcXPin = function (xCoordinate, pinWidth) {
+  return Math.round(xCoordinate - (pinWidth / 2));
+};
+
+var calcYPin = function (yCoordinate, pinHeight) {
+  return Math.round(yCoordinate - pinHeight);
+};
+
+var makeDisabledForm = function (arr) {
+  for (var i = 0; i < arr.length; i++) {
+    var elem = arr[i];
+    elem.setAttribute('disabled', 'disabled');
+  }
+};
+
+var makeEnabledForm = function (arr) {
+  for (var i = 0; i < arr.length; i++) {
+    var elem = arr[i];
+    elem.removeAttribute('disabled');
+  }
+};
+
+makeDisabledForm(allFieldSet);
+makeDisabledForm(allFilters);
+
+var changeEnableStatus = function () {
+  if (ads.length === 0) {
+    mapBlock.classList.remove('map--faded');
+    ads = generateAds(QUANTITY_PINS);
+    renderPins(ads);
+    var firstCard = createCard(ads[0]);
+    blockMapPins.after(firstCard);
+    makeEnabledForm(allFieldSet);
+    makeEnabledForm(allFilters);
+    form.classList.remove('ad-form--disabled');
+    address.value = calcXPin(parseInt(mainPin.style.left, 10), MAIN_PIN_WIDTH) + ', ' + calcYPin(parseInt(mainPin.style.top, 10), -MAIN_PIN_HEIGHT);
+  }
+};
 
 var getRandomNum = function (min, max) {
   var rand = min + Math.random() * (max + 1 - min);
@@ -35,7 +111,7 @@ var getRandomNum = function (min, max) {
 };
 
 var generateAds = function (quantity) {
-  var ads = [];
+  var array = [];
 
   for (var i = 0; i < quantity; i++) {
     var obj = {
@@ -63,21 +139,16 @@ var generateAds = function (quantity) {
 
     obj.offer.address = obj.location.x + ', ' + obj.location.y;
 
-    ads.push(obj);
+    array.push(obj);
   }
-
-  return ads;
+  return array;
 };
-
-var ads = generateAds(QUANTITY_PINS);
-
-mapBlock.classList.remove('map--faded');
 
 var createPin = function (arrItem) {
   var pinElement = pinTemplate.cloneNode(true);
 
-  pinElement.style.left = arrItem.location.x - (PIN_WIDTH / 2) + 'px';
-  pinElement.style.top = arrItem.location.y - PIN_HEIGHT + 'px';
+  pinElement.style.left = calcXPin(arrItem.location.x, PIN_WIDTH) + 'px';
+  pinElement.style.top = calcYPin(arrItem.location.y, PIN_HEIGHT) + 'px';
   pinElement.querySelector('img').src = arrItem.author.avatar;
   pinElement.querySelector('img').alt = arrItem.offer.title;
 
@@ -120,13 +191,31 @@ var createCard = function (arrItem) {
 };
 
 var renderPins = function (arr) {
-  var fragment = document.createDocumentFragment();
-  for (var j = 0; j < arr.length; j++) {
-    fragment.appendChild(createPin(arr[j]));
+  var pin = document.querySelectorAll('.map__pin');
+  if (pin.length === 1) {
+    var fragment = document.createDocumentFragment();
+    for (var j = 0; j < arr.length; j++) {
+      fragment.appendChild(createPin(arr[j]));
+    }
+    blockMapPins.appendChild(fragment);
   }
-  blockMapPins.appendChild(fragment);
 };
 
-renderPins(ads);
-var firstCard = createCard(ads[0]);
-blockMapPins.after(firstCard);
+mainPin.addEventListener('mousedown', function () {
+  changeEnableStatus();
+});
+
+mainPin.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    changeEnableStatus();
+  }
+});
+
+var addRoomsValidity = function (select) {
+  select.addEventListener('change', function () {
+    roomNumber.setCustomValidity(ROOMS_CAPACITY_MAP[roomNumber.value].guests.includes(capacity.value) ? '' : ROOMS_CAPACITY_MAP[roomNumber.value].errorText);
+  });
+};
+
+addRoomsValidity(roomNumber);
+addRoomsValidity(capacity);

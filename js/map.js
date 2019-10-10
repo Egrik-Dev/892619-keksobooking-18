@@ -6,11 +6,11 @@
   window.mapBlock = document.querySelector('.map');
   var form = document.querySelector('.ad-form');
   window.mainPin = document.querySelector('.map__pin--main');
-  var ErrorTemplate = document.querySelector('#error').content.querySelector('.error');
+  var errorTemplate = document.querySelector('#error').content.querySelector('.error');
   var mainBlock = document.querySelector('main');
 
   window.errorLoad = function (errorMessage) {
-    var errorModal = ErrorTemplate.cloneNode(true);
+    var errorModal = errorTemplate.cloneNode(true);
     var btnTryAgain = errorModal.querySelector('.error__button');
     errorModal.querySelector('.error__message').textContent = errorMessage;
 
@@ -30,6 +30,7 @@
 
   var closeError = function () {
     document.removeEventListener('keydown', onErrorEnterPress);
+    changeDisableStatus();
     var error = document.querySelector('.error');
     error.remove();
   };
@@ -51,6 +52,14 @@
       form.classList.remove('ad-form--disabled');
       window.address.value = window.calcXPin(parseInt(window.mainPin.style.left, 10), MAIN_PIN_WIDTH) + ', ' + window.calcYPin(parseInt(window.mainPin.style.top, 10), -MAIN_PIN_HEIGHT);
     }
+  };
+
+  var changeDisableStatus = function () {
+    window.mapBlock.classList.add('map--faded');
+    window.makeDisabledForm(window.allFieldSet);
+    window.makeDisabledForm(window.allFilters);
+    form.classList.add('ad-form--disabled');
+    window.address.setAttribute('value', window.calcStartPin());
   };
 
   window.mainPin.addEventListener('mousedown', function () {

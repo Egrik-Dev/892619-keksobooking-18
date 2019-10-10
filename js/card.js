@@ -45,20 +45,22 @@
     return cardElement;
   };
 
-  window.renderCard = function (arrItem) {
+  window.renderCard = function (arrItem, pin) {
     var currentCard = createCard(arrItem);
     var btnCloseCard = currentCard.querySelector('.popup__close');
-    onClickBtnClose(btnCloseCard, currentCard);
+    onClickBtnClose(btnCloseCard, currentCard, pin);
     blockFilters.before(currentCard);
   };
 
-  var onClickBtnClose = function (close, card) {
+  var onClickBtnClose = function (close, card, pin) {
     close.addEventListener('click', function () {
       window.closeCard();
+      pin.classList.remove('map__pin--active');
     });
 
     var onCardEscPress = function (evt) {
       window.util.isEscEvent(evt, window.closeCard);
+      pin.classList.remove('map__pin--active');
     };
 
     document.addEventListener('keydown', onCardEscPress);

@@ -31,10 +31,10 @@
       activePin(pin);
       window.card = document.querySelector('.map__card');
       if (!window.card) {
-        window.renderCard(ad);
+        window.renderCard(ad, pin);
       } else if (window.card && ad.offer.title !== window.card.querySelector('.popup__title').textContent) {
         window.closeCard();
-        window.renderCard(ad);
+        window.renderCard(ad, pin);
       }
     });
   };

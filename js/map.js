@@ -3,13 +3,37 @@
 (function () {
   var MAIN_PIN_WIDTH = 65;
   var MAIN_PIN_HEIGHT = 80;
-  var QUANTITY_PINS = 8;
-  var ENTER_KEYCODE = 13;
-  var mapBlock = document.querySelector('.map');
-  var ads = [];
-  window.blockMapPins = mapBlock.querySelector('.map__pins');
+  window.mapBlock = document.querySelector('.map');
   var form = document.querySelector('.ad-form');
   window.mainPin = document.querySelector('.map__pin--main');
+  var errorTemplate = document.querySelector('#error').content.querySelector('.error');
+  var mainBlock = document.querySelector('main');
+
+  window.errorLoad = function (errorMessage) {
+    var errorModal = errorTemplate.cloneNode(true);
+    var btnTryAgain = errorModal.querySelector('.error__button');
+    errorModal.querySelector('.error__message').textContent = errorMessage;
+
+    mainBlock.insertAdjacentElement('afterbegin', errorModal);
+
+    document.addEventListener('keydown', onErrorEnterPress);
+
+    btnTryAgain.addEventListener('click', function (evt) {
+      evt.preventDefault();
+      closeError();
+    });
+  };
+
+  var onErrorEnterPress = function (evt) {
+    window.util.isEnterEvent(evt, closeError);
+  };
+
+  var closeError = function () {
+    document.removeEventListener('keydown', onErrorEnterPress);
+    changeDisableStatus();
+    var error = document.querySelector('.error');
+    error.remove();
+  };
 
   window.calcXPin = function (xCoordinate, pinWidth) {
     return Math.round(xCoordinate - (pinWidth / 2));
@@ -20,12 +44,9 @@
   };
 
   var changeEnableStatus = function () {
-    if (ads.length === 0) {
-      mapBlock.classList.remove('map--faded');
-      ads = window.generateAds(QUANTITY_PINS);
-      window.renderPins(ads);
-      var firstCard = window.createCard(ads[0]);
-      window.blockMapPins.after(firstCard);
+    if (window.mapBlock.classList.contains('map--faded')) {
+      window.mapBlock.classList.remove('map--faded');
+      window.load(window.renderPins, window.errorLoad);
       window.makeEnabledForm(window.allFieldSet);
       window.makeEnabledForm(window.allFilters);
       form.classList.remove('ad-form--disabled');
@@ -33,13 +54,19 @@
     }
   };
 
+  var changeDisableStatus = function () {
+    window.mapBlock.classList.add('map--faded');
+    window.makeDisabledForm(window.allFieldSet);
+    window.makeDisabledForm(window.allFilters);
+    form.classList.add('ad-form--disabled');
+    window.address.setAttribute('value', window.calcStartPin());
+  };
+
   window.mainPin.addEventListener('mousedown', function () {
     changeEnableStatus();
   });
 
   window.mainPin.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
-      changeEnableStatus();
-    }
+    window.util.isEnterEvent(evt, changeEnableStatus);
   });
 })();

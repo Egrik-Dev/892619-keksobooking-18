@@ -25,23 +25,23 @@
     },
   };
 
-  var makeDisabledForm = function (arr) {
+  window.makeDisabledForm = function (arr) {
     for (var i = 0; i < arr.length; i++) {
       var elem = arr[i];
       elem.setAttribute('disabled', 'disabled');
     }
   };
 
-  makeDisabledForm(window.allFieldSet);
-  makeDisabledForm(window.allFilters);
+  window.makeDisabledForm(window.allFieldSet);
+  window.makeDisabledForm(window.allFilters);
 
-  var calcStartPin = function () {
+  window.calcStartPin = function () {
     var x = parseInt(window.mainPin.style.left, 10);
     var y = parseInt(window.mainPin.style.top, 10);
     return x + ', ' + y;
   };
 
-  address.setAttribute('value', calcStartPin());
+  address.setAttribute('value', window.calcStartPin());
 
   window.makeEnabledForm = function (arr) {
     for (var i = 0; i < arr.length; i++) {

@@ -8,8 +8,9 @@
     HOUSE: 'Дом',
     BUNGALO: 'Бунгало',
   };
+  var blockFilters = document.querySelector('.map__filters-container');
 
-  window.createCard = function (arrItem) {
+  var createCard = function (arrItem) {
     var cardElement = cardTemplate.cloneNode(true);
     var blockFeatures = cardElement.querySelector('.popup__features');
     var blockPhotos = cardElement.querySelector('.popup__photos');
@@ -43,4 +44,30 @@
 
     return cardElement;
   };
+
+  window.renderCard = function (arrItem, pin) {
+    var currentCard = createCard(arrItem);
+    var btnCloseCard = currentCard.querySelector('.popup__close');
+    onClickBtnClose(btnCloseCard, currentCard, pin);
+    blockFilters.before(currentCard);
+  };
+
+  var onClickBtnClose = function (close, card, pin) {
+    close.addEventListener('click', function () {
+      window.closeCard();
+      pin.classList.remove('map__pin--active');
+    });
+
+    var onCardEscPress = function (evt) {
+      window.util.isEscEvent(evt, window.closeCard);
+      pin.classList.remove('map__pin--active');
+    };
+
+    document.addEventListener('keydown', onCardEscPress);
+
+    window.closeCard = function () {
+      card.remove();
+    };
+  };
+
 })();

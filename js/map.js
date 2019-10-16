@@ -8,6 +8,12 @@
   window.mainPin = document.querySelector('.map__pin--main');
   var errorTemplate = document.querySelector('#error').content.querySelector('.error');
   var mainBlock = document.querySelector('main');
+  window.ads = [];
+
+  window.successLoad = function (arr) {
+    window.ads = arr;
+    window.renderPins(window.ads);
+  };
 
   window.errorLoad = function (errorMessage) {
     var errorModal = errorTemplate.cloneNode(true);
@@ -46,7 +52,7 @@
   var changeEnableStatus = function () {
     if (window.mapBlock.classList.contains('map--faded')) {
       window.mapBlock.classList.remove('map--faded');
-      window.load(window.renderPins, window.errorLoad);
+      window.load(window.successLoad, window.errorLoad);
       window.makeEnabledForm(window.allFieldSet);
       window.makeEnabledForm(window.allFilters);
       form.classList.remove('ad-form--disabled');

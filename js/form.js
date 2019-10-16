@@ -6,6 +6,7 @@
   var address = document.querySelector('#address');
   var roomNumber = document.querySelector('[name="rooms"]');
   var capacity = document.querySelector('[name="capacity"]');
+  var housingType = document.querySelector('#housing-type');
   var ROOMS_CAPACITY_MAP = {
     '1': {
       'guests': ['1'],
@@ -58,4 +59,16 @@
 
   addRoomsValidity(roomNumber);
   addRoomsValidity(capacity);
+
+  var filteredHousingType = function (value) {
+    var filteredArr = window.ads.filter(function (item) {
+      return value === item.offer.type;
+    });
+    window.delPins();
+    window.renderPins(filteredArr);
+  };
+
+  housingType.addEventListener('change', function () {
+    filteredHousingType(housingType.value);
+  });
 })();

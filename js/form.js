@@ -6,7 +6,11 @@
   var address = document.querySelector('#address');
   var roomNumber = document.querySelector('[name="rooms"]');
   var capacity = document.querySelector('[name="capacity"]');
-  var housingType = document.querySelector('#housing-type');
+  var housingType = document.querySelector('#type');
+  var price = document.querySelector('#price');
+  var filterHousingType = document.querySelector('#housing-type');
+  var timeIn = document.querySelector('#timein');
+  var timeOut = document.querySelector('#timeout');
   var ROOMS_CAPACITY_MAP = {
     '1': {
       'guests': ['1'],
@@ -60,15 +64,54 @@
   addRoomsValidity(roomNumber);
   addRoomsValidity(capacity);
 
+  var changeMinPrice = function () {
+    switch (housingType.value) {
+      case 'bungalo':
+        price.min = '0';
+        price.placeholder = '0';
+        break;
+      case 'flat':
+        price.min = '1000';
+        price.placeholder = '1000';
+        break;
+      case 'house':
+        price.min = '5000';
+        price.placeholder = '5000';
+        break;
+      case 'palace':
+        price.min = '10000';
+        price.placeholder = '10000';
+        break;
+    }
+  };
+
+  housingType.addEventListener('change', changeMinPrice);
+
+  var changeTime = function (select) {
+    select.addEventListener('change', function () {
+      timeIn.value = select.value;
+      timeOut.value = select.value;
+    });
+  };
+
+  changeTime(timeIn);
+  changeTime(timeOut);
+
   var filteredHousingType = function (value) {
+    window.delPins();
+
+    if (value === 'any') {
+      window.renderPins(window.ads);
+    }
+
     var filteredArr = window.ads.filter(function (item) {
       return value === item.offer.type;
     });
-    window.delPins();
+
     window.renderPins(filteredArr);
   };
 
-  housingType.addEventListener('change', function () {
-    filteredHousingType(housingType.value);
+  filterHousingType.addEventListener('change', function () {
+    filteredHousingType(filterHousingType.value);
   });
 })();

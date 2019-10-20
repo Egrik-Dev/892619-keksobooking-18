@@ -7,11 +7,13 @@
   var MAX_LEFT_PIN = 0 - (MAIN_PIN_WIDTH / 2);
   var MAX_BOTTOM_PIN = 630 - MAIN_PIN_HEIGHT;
   var MAX_TOP_PIN = 55;
+  var METHOD_GET = 'GET';
+  var URL_LOAD = 'https://js.dump.academy/keksobooking/data';
   window.mapBlock = document.querySelector('.map');
   var form = document.querySelector('.ad-form');
   window.mainPin = document.querySelector('.map__pin--main');
   var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-  var mainBlock = document.querySelector('main');
+  window.mainBlock = document.querySelector('main');
   window.ads = [];
 
   window.successLoad = function (arr) {
@@ -24,7 +26,7 @@
     var btnTryAgain = errorModal.querySelector('.error__button');
     errorModal.querySelector('.error__message').textContent = errorMessage;
 
-    mainBlock.insertAdjacentElement('afterbegin', errorModal);
+    window.mainBlock.insertAdjacentElement('afterbegin', errorModal);
 
     document.addEventListener('keydown', onErrorEnterPress);
 
@@ -40,7 +42,7 @@
 
   var closeError = function () {
     document.removeEventListener('keydown', onErrorEnterPress);
-    changeDisableStatus();
+    window.changeDisableStatus();
     var error = document.querySelector('.error');
     error.remove();
   };
@@ -53,22 +55,38 @@
     return Math.round(yCoordinate - pinHeight);
   };
 
+  var returnMainPin = function () {
+    window.mainPin.style.left = '570px';
+    window.mainPin.style.top = '375px';
+  };
+
   var changeEnableStatus = function () {
     if (window.mapBlock.classList.contains('map--faded')) {
       window.mapBlock.classList.remove('map--faded');
-      window.load(window.successLoad, window.errorLoad);
+      window.ajax(METHOD_GET, URL_LOAD, window.successLoad, window.errorLoad);
       window.makeEnabledForm(window.allFieldSet);
       window.makeEnabledForm(window.allFilters);
       form.classList.remove('ad-form--disabled');
     }
   };
 
-  var changeDisableStatus = function () {
+  window.changeDisableStatus = function () {
     window.mapBlock.classList.add('map--faded');
     window.makeDisabledForm(window.allFieldSet);
     window.makeDisabledForm(window.allFilters);
     form.classList.add('ad-form--disabled');
-    window.address.setAttribute('value', window.calcStartPin());
+    form.reset();
+
+    window.delPins();
+
+    var card = document.querySelector('.map__card');
+    if (card) {
+      window.closeCard();
+    }
+
+    returnMainPin();
+
+    window.address.value = window.calcStartPin();
   };
 
   var setAdress = function () {

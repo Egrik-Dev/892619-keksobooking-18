@@ -1,16 +1,6 @@
 'use strict';
 
 (function () {
-  window.allFilters = document.querySelectorAll('.map__filter');
-  window.allFieldSet = document.querySelectorAll('fieldset');
-  var address = document.querySelector('#address');
-  var roomNumber = document.querySelector('[name="rooms"]');
-  var capacity = document.querySelector('[name="capacity"]');
-  var housingType = document.querySelector('#type');
-  var price = document.querySelector('#price');
-  var filterHousingType = document.querySelector('#housing-type');
-  var timeIn = document.querySelector('#timein');
-  var timeOut = document.querySelector('#timeout');
   var ROOMS_CAPACITY_MAP = {
     '1': {
       'guests': ['1'],
@@ -29,6 +19,20 @@
       'errorText': '100 комнат не для гостей'
     },
   };
+  var METHOD_POST = 'POST';
+  var URL_SAVE = 'https://js.dump.academy/keksobooking';
+  window.allFilters = document.querySelectorAll('.map__filter');
+  window.allFieldSet = document.querySelectorAll('fieldset');
+  var address = document.querySelector('#address');
+  var roomNumber = document.querySelector('[name="rooms"]');
+  var capacity = document.querySelector('[name="capacity"]');
+  var housingType = document.querySelector('#type');
+  var price = document.querySelector('#price');
+  var filterHousingType = document.querySelector('#housing-type');
+  var timeIn = document.querySelector('#timein');
+  var timeOut = document.querySelector('#timeout');
+  var form = document.querySelector('.ad-form');
+  var successTemplate = document.querySelector('#success').content.querySelector('.success');
 
   window.makeDisabledForm = function (arr) {
     for (var i = 0; i < arr.length; i++) {
@@ -113,5 +117,31 @@
 
   filterHousingType.addEventListener('change', function () {
     filteredHousingType(filterHousingType.value);
+  });
+
+  var closeSuccess = function () {
+    document.removeEventListener('keydown', onSuccessEscPress);
+    document.removeEventListener('click', closeSuccess);
+    var blockSuccess = document.querySelector('.success');
+    blockSuccess.remove();
+  };
+
+  var onSuccessEscPress = function (evt) {
+    window.util.isEscEvent(evt, closeSuccess);
+  };
+
+  var successSave = function () {
+    var successModal = successTemplate.cloneNode(true);
+    window.changeDisableStatus();
+
+    window.mainBlock.insertAdjacentElement('afterbegin', successModal);
+
+    document.addEventListener('keydown', onSuccessEscPress);
+    document.addEventListener('click', closeSuccess);
+  };
+
+  form.addEventListener('submit', function (evt) {
+    window.ajax(METHOD_POST, URL_SAVE, successSave, window.errorLoad, new FormData(form));
+    evt.preventDefault();
   });
 })();

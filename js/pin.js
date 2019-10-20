@@ -51,10 +51,10 @@
   };
 
   window.delPins = function () {
-    var allPins = document.querySelectorAll('.map__pin');
+    window.allPins = document.querySelectorAll('.map__pin');
 
-    for (var i = 1; i < allPins.length; i++) {
-      var pin = allPins[i];
+    for (var i = 1; i < window.allPins.length; i++) {
+      var pin = window.allPins[i];
       pin.remove();
     }
   };

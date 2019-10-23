@@ -28,7 +28,6 @@
   var capacity = document.querySelector('[name="capacity"]');
   var housingType = document.querySelector('#type');
   var price = document.querySelector('#price');
-  var filterHousingType = document.querySelector('#housing-type');
   var timeIn = document.querySelector('#timein');
   var timeOut = document.querySelector('#timeout');
   var form = document.querySelector('.ad-form');
@@ -100,24 +99,6 @@
 
   changeTime(timeIn);
   changeTime(timeOut);
-
-  var filteredHousingType = function (value) {
-    window.delPins();
-
-    if (value === 'any') {
-      window.renderPins(window.ads);
-    }
-
-    var filteredArr = window.ads.filter(function (item) {
-      return value === item.offer.type;
-    });
-
-    window.renderPins(filteredArr);
-  };
-
-  filterHousingType.addEventListener('change', function () {
-    filteredHousingType(filterHousingType.value);
-  });
 
   var closeSuccess = function () {
     document.removeEventListener('keydown', onSuccessEscPress);

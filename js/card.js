@@ -46,10 +46,10 @@
   };
 
   window.renderCard = function (arrItem, pin) {
-    var currentCard = createCard(arrItem);
-    var btnCloseCard = currentCard.querySelector('.popup__close');
-    onClickBtnClose(btnCloseCard, currentCard, pin);
-    blockFilters.before(currentCard);
+    window.currentCard = createCard(arrItem);
+    var btnCloseCard = window.currentCard.querySelector('.popup__close');
+    onClickBtnClose(btnCloseCard, window.currentCard, pin);
+    blockFilters.before(window.currentCard);
   };
 
   var onClickBtnClose = function (close, card, pin) {

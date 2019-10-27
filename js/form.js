@@ -21,6 +21,7 @@
   };
   var METHOD_POST = 'POST';
   var URL_SAVE = 'https://js.dump.academy/keksobooking';
+  var FILE_TYPES = ['gif', 'jpg', 'png', 'jpeg'];
   window.allFilters = document.querySelectorAll('.map__filter');
   window.allFieldSet = document.querySelectorAll('fieldset');
   var address = document.querySelector('#address');
@@ -32,6 +33,9 @@
   var timeOut = document.querySelector('#timeout');
   var form = document.querySelector('.ad-form');
   var successTemplate = document.querySelector('#success').content.querySelector('.success');
+  var prewievAvatar = document.querySelector('.ad-form-header__preview img');
+  var avatarChoser = document.querySelector('#avatar');
+  var roomsChoser = document.querySelector('#images');
 
   window.makeDisabledForm = function (arr) {
     for (var i = 0; i < arr.length; i++) {
@@ -124,5 +128,60 @@
   form.addEventListener('submit', function (evt) {
     window.ajax(METHOD_POST, URL_SAVE, successSave, window.errorLoad, new FormData(form));
     evt.preventDefault();
+  });
+
+  var createPhotoPrewiev = function () {
+    var div = document.createElement('div');
+    div.className = 'ad-form__photo';
+    var img = document.createElement('img');
+    img.setAttribute('src', 'img/muffin-grey.svg');
+    img.setAttribute('alt', 'Фото помещения');
+    img.setAttribute('width', '40');
+    img.setAttribute('height', '44');
+    div.append(img);
+    var roomPhotoUpload = document.querySelector('.ad-form__upload');
+    roomPhotoUpload.after(div);
+    return img;
+  };
+
+  var addLoadListener = function (reader, choser) {
+    reader.addEventListener('load', function () {
+      if (choser === roomsChoser) {
+        var prewievRooms = createPhotoPrewiev();
+        prewievRooms.src = reader.result;
+      } else {
+        prewievAvatar.src = reader.result;
+      }
+    });
+  };
+
+  var loadPhoto = function (choser) {
+    for (var i = 0; i < choser.files.length; i++) {
+      var file = choser.files[i];
+
+      if (file) {
+        var fileName = file.name.toLowerCase();
+      }
+
+      var matches = FILE_TYPES.some(function (item) {
+        return fileName.endsWith(item);
+      });
+
+      if (matches) {
+        var reader = new FileReader();
+
+        reader.readAsDataURL(file);
+
+        addLoadListener(reader, choser);
+      }
+    }
+  };
+
+  avatarChoser.addEventListener('change', function () {
+    loadPhoto(avatarChoser);
+  });
+
+  roomsChoser.addEventListener('change', function () {
+    loadPhoto(roomsChoser);
   });
 })();

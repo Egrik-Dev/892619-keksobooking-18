@@ -9,133 +9,123 @@
   var MAX_TOP_PIN = 55;
   var METHOD_GET = 'GET';
   var URL_LOAD = 'https://js.dump.academy/keksobooking/data';
-  window.mapBlock = document.querySelector('.map');
-  var form = document.querySelector('.ad-form');
-  window.mainPin = document.querySelector('.map__pin--main');
+  var mapBlockElement = document.querySelector('.map');
+  var filterFormElement = document.querySelector('.map__filters');
+  var mainPinElement = document.querySelector('.map__pin--main');
+  var mainBlockElement = document.querySelector('main');
   var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-  window.mainBlock = document.querySelector('main');
-  window.ads = [];
 
-  window.successLoad = function (arr) {
-    window.ads = arr;
-    window.renderPins(window.ads);
+  var successLoad = function (arr) {
+    window.pin.render(arr);
+    window.filter.getXhrArray(arr);
   };
 
-  window.errorLoad = function (errorMessage) {
+  var errorLoad = function (errorMessage) {
     var errorModal = errorTemplate.cloneNode(true);
-    var btnTryAgain = errorModal.querySelector('.error__button');
+    var btnTryagainElement = errorModal.querySelector('.error__button');
     errorModal.querySelector('.error__message').textContent = errorMessage;
 
-    window.mainBlock.insertAdjacentElement('afterbegin', errorModal);
+    mainBlockElement.insertAdjacentElement('afterbegin', errorModal);
 
     document.addEventListener('keydown', onErrorEnterPress);
 
-    btnTryAgain.addEventListener('click', function (evt) {
+    btnTryagainElement.addEventListener('click', function (evt) {
       evt.preventDefault();
-      closeError();
+      onErrorClick();
     });
   };
 
   var onErrorEnterPress = function (evt) {
-    window.util.isEnterEvent(evt, closeError);
+    window.util.isEnterEvent(evt, onErrorClick);
   };
 
-  var closeError = function () {
+  var onErrorClick = function () {
     document.removeEventListener('keydown', onErrorEnterPress);
-    window.changeDisableStatus();
-    var error = document.querySelector('.error');
-    error.remove();
+    changeDisableStatus();
+    var errorElement = document.querySelector('.error');
+    errorElement.remove();
   };
 
-  window.calcXPin = function (xCoordinate, pinWidth) {
+  var calcXPin = function (xCoordinate, pinWidth) {
     return Math.round(xCoordinate - (pinWidth / 2));
   };
 
-  window.calcYPin = function (yCoordinate, pinHeight) {
+  var calcYPin = function (yCoordinate, pinHeight) {
     return Math.round(yCoordinate - pinHeight);
   };
 
   var returnMainPin = function () {
-    window.mainPin.style.left = '570px';
-    window.mainPin.style.top = '375px';
+    mainPinElement.style.left = '570px';
+    mainPinElement.style.top = '375px';
   };
 
   var changeEnableStatus = function () {
-    if (window.mapBlock.classList.contains('map--faded')) {
-      window.mapBlock.classList.remove('map--faded');
-      window.ajax(METHOD_GET, URL_LOAD, window.successLoad, window.errorLoad);
-      window.makeEnabledForm(window.allFieldSet);
-      window.makeEnabledForm(window.allFilters);
-      form.classList.remove('ad-form--disabled');
+    if (mapBlockElement.classList.contains('map--faded')) {
+      mapBlockElement.classList.remove('map--faded');
+      window.ajax(METHOD_GET, URL_LOAD, successLoad, errorLoad);
+      window.form.makeEnabledForm(window.form.allFieldSet);
+      window.form.makeEnabledForm(window.form.allFilters);
+      window.form.formElement.classList.remove('ad-form--disabled');
     }
   };
 
-  window.changeDisableStatus = function () {
-    window.mapBlock.classList.add('map--faded');
-    window.makeDisabledForm(window.allFieldSet);
-    window.makeDisabledForm(window.allFilters);
-    form.classList.add('ad-form--disabled');
-    form.reset();
+  var changeDisableStatus = function () {
+    mapBlockElement.classList.add('map--faded');
+    window.form.makeDisabledForm(window.form.allFieldSet);
+    window.form.makeDisabledForm(window.form.allFilters);
+    window.form.formElement.classList.add('ad-form--disabled');
+    window.form.delUserPhotos();
+    window.form.formElement.reset();
+    filterFormElement.reset();
+    window.filter.unchekedFilters();
 
-    window.delPins();
+    window.card.close();
 
-    var card = document.querySelector('.map__card');
-    if (card) {
-      window.closeCard();
-    }
+    window.pin.delPins();
 
     returnMainPin();
 
-    window.address.value = window.calcStartPin();
+    window.form.address.value = window.form.calcStartPin();
   };
 
   var setAdress = function () {
-    window.address.value = 'x: ' + window.calcXPin(parseInt(window.mainPin.style.left, 10), -MAIN_PIN_WIDTH) + ', y: ' + window.calcYPin(parseInt(window.mainPin.style.top, 10), -MAIN_PIN_HEIGHT);
+    window.form.address.value = 'x: ' + calcXPin(parseInt(mainPinElement.style.left, 10), -MAIN_PIN_WIDTH) + ', y: ' + calcYPin(parseInt(mainPinElement.style.top, 10), -MAIN_PIN_HEIGHT);
   };
 
   var movingPin = function (evt) {
-    var startCords = {
-      x: evt.clientX,
-      y: evt.clientY
-    };
+    function Coords(x, y) {
+      this.x = x;
+      this.y = y;
+    }
+
+    var startCords = new Coords(evt.clientX, evt.clientY);
 
     var onMouseMove = function (moveEvt) {
       moveEvt.preventDefault();
 
-      var shift = {
-        x: startCords.x - moveEvt.clientX,
-        y: startCords.y - moveEvt.clientY
-      };
+      var shift = new Coords(startCords.x - moveEvt.clientX, startCords.y - moveEvt.clientY);
+      startCords = new Coords(moveEvt.clientX, moveEvt.clientY);
+      var pinCoord = new Coords(mainPinElement.offsetLeft - shift.x, mainPinElement.offsetTop - shift.y);
 
-      startCords = {
-        x: moveEvt.clientX,
-        y: moveEvt.clientY
-      };
-
-      var pinCoord = {
-        x: window.mainPin.offsetLeft - shift.x,
-        y: window.mainPin.offsetTop - shift.y
-      };
-
-      window.mainPin.style.top = pinCoord.y + 'px';
-      window.mainPin.style.left = pinCoord.x + 'px';
+      mainPinElement.style.top = pinCoord.y + 'px';
+      mainPinElement.style.left = pinCoord.x + 'px';
 
       setAdress();
 
       if (pinCoord.x < MAX_LEFT_PIN) {
-        window.mainPin.style.left = MAX_LEFT_PIN + 'px';
+        mainPinElement.style.left = MAX_LEFT_PIN + 'px';
       }
 
       if (pinCoord.x > MAX_RIGHT_PIN) {
-        window.mainPin.style.left = MAX_RIGHT_PIN + 'px';
+        mainPinElement.style.left = MAX_RIGHT_PIN + 'px';
       }
 
       if (pinCoord.y < MAX_TOP_PIN) {
-        window.mainPin.style.top = MAX_TOP_PIN + 'px';
+        mainPinElement.style.top = MAX_TOP_PIN + 'px';
       }
 
       if (pinCoord.y > MAX_BOTTOM_PIN) {
-        window.mainPin.style.top = MAX_BOTTOM_PIN + 'px';
+        mainPinElement.style.top = MAX_BOTTOM_PIN + 'px';
       }
     };
 
@@ -149,12 +139,22 @@
     document.addEventListener('mouseup', onMouseUp);
   };
 
-  window.mainPin.addEventListener('mousedown', function (evt) {
+  mainPinElement.addEventListener('mousedown', function (evt) {
     changeEnableStatus();
     movingPin(evt);
   });
 
-  window.mainPin.addEventListener('keydown', function (evt) {
+  mainPinElement.addEventListener('keydown', function (evt) {
     window.util.isEnterEvent(evt, changeEnableStatus);
   });
+
+  window.map = {
+    mapBlock: mapBlockElement,
+    mainPin: mainPinElement,
+    mainBlock: mainBlockElement,
+    errorLoad: errorLoad,
+    calcXPin: calcXPin,
+    calcYPin: calcYPin,
+    changeDisableStatus: changeDisableStatus,
+  };
 })();

@@ -1,19 +1,19 @@
 'use strict';
 
 (function () {
-  var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
   var MAP_TYPE_ROOM = {
     PALACE: 'Дворец',
     FLAT: 'Квартира',
     HOUSE: 'Дом',
     BUNGALO: 'Бунгало',
   };
-  var blockFilters = document.querySelector('.map__filters-container');
+  var blockFiltersElement = document.querySelector('.map__filters-container');
+  var cardTemplate = document.querySelector('#card').content.querySelector('.map__card');
 
   var createCard = function (arrItem) {
     var cardElement = cardTemplate.cloneNode(true);
-    var blockFeatures = cardElement.querySelector('.popup__features');
-    var blockPhotos = cardElement.querySelector('.popup__photos');
+    var featuresElement = cardElement.querySelector('.popup__features');
+    var photosElement = cardElement.querySelector('.popup__photos');
     var photoElement = cardElement.querySelector('.popup__photo');
 
     cardElement.querySelector('.popup__title').textContent = arrItem.offer.title;
@@ -25,48 +25,58 @@
     cardElement.querySelector('.popup__description').textContent = arrItem.offer.description;
     cardElement.querySelector('.popup__avatar').src = arrItem.author.avatar;
 
-    blockFeatures.innerHTML = '';
+    featuresElement.innerHTML = '';
     for (var i = 0; i < arrItem.offer.features.length; i++) {
-      var newFeature = document.createElement('li');
-      newFeature.classList.add('popup__feature');
-      newFeature.classList.add('popup__feature--' + arrItem.offer.features[i]);
-      blockFeatures.append(newFeature);
+      var newFeatureElement = document.createElement('li');
+      newFeatureElement.classList.add('popup__feature');
+      newFeatureElement.classList.add('popup__feature--' + arrItem.offer.features[i]);
+      featuresElement.append(newFeatureElement);
     }
 
-    blockPhotos.innerHTML = '';
+    photosElement.innerHTML = '';
     for (var j = 0; j < arrItem.offer.photos.length; j++) {
       var photoTemplate = photoElement.cloneNode(true);
-      blockPhotos.append(photoTemplate);
-      var allPhotos = cardElement.querySelectorAll('.popup__photo');
-      var popupPhoto = allPhotos[j];
+      photosElement.append(photoTemplate);
+      var allPhotosElement = cardElement.querySelectorAll('.popup__photo');
+      var popupPhoto = allPhotosElement[j];
       popupPhoto.src = arrItem.offer.photos[j];
     }
 
     return cardElement;
   };
 
-  window.renderCard = function (arrItem, pin) {
-    window.currentCard = createCard(arrItem);
-    var btnCloseCard = window.currentCard.querySelector('.popup__close');
-    onClickBtnClose(btnCloseCard, window.currentCard, pin);
-    blockFilters.before(window.currentCard);
+  var renderCard = function (arrItem) {
+    var currentCard = createCard(arrItem);
+    var btnClosecardElement = currentCard.querySelector('.popup__close');
+    onClickBtnClose(btnClosecardElement);
+    blockFiltersElement.before(currentCard);
+    document.addEventListener('keydown', onCardEscPress);
   };
 
-  var onClickBtnClose = function (close, card, pin) {
+  var onClickBtnClose = function (close) {
     close.addEventListener('click', function () {
-      window.closeCard();
-      pin.classList.remove('map__pin--active');
+      window.pin.delActivePin();
+      closeCard();
     });
+  };
 
-    var onCardEscPress = function (evt) {
-      window.util.isEscEvent(evt, window.closeCard);
-      pin.classList.remove('map__pin--active');
-    };
+  var onCardEscPress = function (evt) {
+    window.util.isEscEvent(evt, closeCard);
+    window.pin.delActivePin();
+  };
 
-    document.addEventListener('keydown', onCardEscPress);
+  var closeCard = function () {
+    var cardElement = document.querySelector('.map__card');
 
-    window.closeCard = function () {
-      card.remove();
-    };
+    if (cardElement) {
+      cardElement.remove();
+    }
+
+    document.removeEventListener('keydown', onCardEscPress);
+  };
+
+  window.card = {
+    render: renderCard,
+    close: closeCard,
   };
 })();

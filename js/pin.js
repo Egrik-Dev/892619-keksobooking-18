@@ -4,58 +4,71 @@
   var PIN_WIDTH = 50;
   var PIN_HEIGHT = 70;
   var MAX_RENDER_PINS = 5;
+  var mapPinsElement = window.map.mapBlock.querySelector('.map__pins');
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
-  var blockMapPins = window.mapBlock.querySelector('.map__pins');
 
   var createPin = function (arrItem) {
     var pinElement = pinTemplate.cloneNode(true);
 
-    pinElement.style.left = window.calcXPin(arrItem.location.x, PIN_WIDTH) + 'px';
-    pinElement.style.top = window.calcYPin(arrItem.location.y, PIN_HEIGHT) + 'px';
+    pinElement.style.left = window.map.calcXPin(arrItem.location.x, PIN_WIDTH) + 'px';
+    pinElement.style.top = window.map.calcYPin(arrItem.location.y, PIN_HEIGHT) + 'px';
     pinElement.querySelector('img').src = arrItem.author.avatar;
     pinElement.querySelector('img').alt = arrItem.offer.title;
 
     return pinElement;
   };
 
-  window.renderPins = function (arr) {
-    var slicedArr = arr.slice(0, MAX_RENDER_PINS);
+  var renderPins = function (arr) {
+    var slicedArray = arr.slice(0, MAX_RENDER_PINS);
 
-    for (var i = 0; i < slicedArr.length; i++) {
-      var ad = slicedArr[i];
-      var pin = createPin(slicedArr[i]);
+    slicedArray.forEach(function (item) {
+      var ad = item;
+      var pin = createPin(item);
       onClickPin(pin, ad);
-      blockMapPins.appendChild(pin);
-    }
+      mapPinsElement.appendChild(pin);
+    });
   };
 
   var onClickPin = function (pin, ad) {
     pin.addEventListener('click', function () {
       activePin(pin);
-      window.card = document.querySelector('.map__card');
-      if (!window.card) {
-        window.renderCard(ad, pin);
-      } else if (window.card && ad.offer.title !== window.card.querySelector('.popup__title').textContent) {
-        window.closeCard();
-        window.renderCard(ad, pin);
+      var cardElement = document.querySelector('.map__card');
+      if (!cardElement) {
+        window.card.render(ad);
+      } else if (cardElement && ad.offer.title !== cardElement.querySelector('.popup__title').textContent) {
+        window.card.close();
+        window.card.render(ad);
       }
     });
   };
 
+  var delActivePin = function () {
+    var activePinElement = document.querySelector('.map__pin--active');
+    activePinElement.classList.remove('map__pin--active');
+  };
+
   var activePin = function (pin) {
-    var currentActivePin = blockMapPins.querySelector('.map__pin--active');
-    if (currentActivePin) {
-      currentActivePin.classList.remove('map__pin--active');
+    var currentActivepinElement = mapPinsElement.querySelector('.map__pin--active');
+    if (currentActivepinElement) {
+      delActivePin();
     }
+
     pin.classList.add('map__pin--active');
   };
 
-  window.delPins = function () {
-    window.allPins = document.querySelectorAll('.map__pin');
+  var delPins = function () {
+    var allPinsElement = document.querySelectorAll('.map__pin');
 
-    for (var i = 1; i < window.allPins.length; i++) {
-      var pin = window.allPins[i];
-      pin.remove();
-    }
+    allPinsElement.forEach(function (item) {
+      if (!item.classList.contains('map__pin--main')) {
+        item.remove();
+      }
+    });
+  };
+
+  window.pin = {
+    render: renderPins,
+    delPins: delPins,
+    delActivePin: delActivePin,
   };
 })();

@@ -170,15 +170,15 @@
   };
 
   var loadPhoto = function (choser) {
-    for (var i = 0; i < choser.files.length; i++) {
-      var file = choser.files[i];
+    Array.from(choser.files).forEach(function (item) {
+      var file = item;
 
       if (file) {
         var fileName = file.name.toLowerCase();
       }
 
-      var matches = FILE_TYPES.some(function (item) {
-        return fileName.endsWith(item);
+      var matches = FILE_TYPES.some(function (type) {
+        return fileName.endsWith(type);
       });
 
       if (matches) {
@@ -188,7 +188,7 @@
 
         addLoadListener(reader, choser);
       }
-    }
+    });
   };
 
   avatarChoserElement.addEventListener('change', function () {

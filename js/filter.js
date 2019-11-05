@@ -1,47 +1,22 @@
 'use strict';
 
 (function () {
-  var mapFiltersElement = document.querySelectorAll('.map__filter');
-  var mapCheckboxesElement = document.querySelectorAll('.map__checkbox');
+  var MIN_PRICE = '10000';
+  var MAX_PRICE = '50000';
+  var formFiltersElement = document.querySelector('.map__filters');
   var housingTypeElement = document.querySelector('#housing-type');
   var housingPriceElement = document.querySelector('#housing-price');
   var housingRoomsElement = document.querySelector('#housing-rooms');
   var housingGuestsElement = document.querySelector('#housing-guests');
-  var filterWifiElement = document.querySelector('#filter-wifi');
-  var filterDishwasherElement = document.querySelector('#filter-dishwasher');
-  var filterParkingElement = document.querySelector('#filter-parking');
-  var filterWasherElement = document.querySelector('#filter-washer');
-  var filterElevatorElement = document.querySelector('#filter-elevator');
-  var filterConditionerElement = document.querySelector('#filter-conditioner');
   var ads = [];
 
-  var onFilterChange = window.util.debounce(function (filter) {
-    filter.setAttribute('checked', 'checked');
+  var onFormChange = window.util.debounce(function () {
     filteredPins();
   });
 
-  var unchekedFilters = function () {
-    mapCheckboxesElement.forEach(function (item) {
-      item.removeAttribute('checked');
-    });
-  };
+  formFiltersElement.addEventListener('change', onFormChange);
 
-  var addFilterListener = function (filter) {
-    filter.addEventListener('change', function () {
-      onFilterChange(filter);
-    });
-  };
-
-  var getAllFilters = function (filters) {
-    filters.forEach(function (item) {
-      addFilterListener(item);
-    });
-  };
-
-  getAllFilters(mapFiltersElement);
-  getAllFilters(mapCheckboxesElement);
-
-  var getXhrArray = function (arr) {
+  window.getXhrArray = function (arr) {
     ads = arr;
     return ads;
   };
@@ -52,48 +27,49 @@
 
     var filteredArr = ads;
 
-    var filteredCheckbox = function (checkbox) {
-      filteredArr = filteredArr.filter(function (item) {
-        return checkbox.checked ? item.offer.features.includes(checkbox.value) : item;
-      });
+    var getFilteredItems = function (item, type, name) {
+      return (type.value === 'any') ? item : type.value === String(item.offer[name]);
     };
 
-    var filteredRadio = function (input, name) {
-      filteredArr = filteredArr.filter(function (item) {
-        return (input.value === 'any') ? item : input.value === String(item.offer[name]);
-      });
-    };
-
-    filteredRadio(housingTypeElement, 'type');
-
-    filteredArr = filteredArr.filter(function (item) {
+    var getPriceItem = function (item) {
       switch (housingPriceElement.value) {
         case 'low':
-          return item.offer.price < '10000';
+          return item.offer.price < MIN_PRICE;
         case 'middle':
-          return item.offer.price >= '10000' && item.offer.price <= '50000';
+          return item.offer.price >= MIN_PRICE && item.offer.price <= MAX_PRICE;
         case 'high':
-          return item.offer.price > '50000';
+          return item.offer.price > MAX_PRICE;
         default:
           return item;
       }
-    });
+    };
 
-    filteredRadio(housingRoomsElement, 'rooms');
-    filteredRadio(housingGuestsElement, 'guests');
+    var filteredRadio = function () {
+      filteredArr = filteredArr.filter(function (item) {
+        return getFilteredItems(item, housingTypeElement, 'type') && getPriceItem(item) && getFilteredItems(item, housingRoomsElement, 'rooms') && getFilteredItems(item, housingGuestsElement, 'guests');
+      });
+    };
 
-    filteredCheckbox(filterWifiElement);
-    filteredCheckbox(filterDishwasherElement);
-    filteredCheckbox(filterParkingElement);
-    filteredCheckbox(filterWasherElement);
-    filteredCheckbox(filterElevatorElement);
-    filteredCheckbox(filterConditionerElement);
+    var isFeatuesThere = function (currentValue) {
+      filteredArr = filteredArr.filter(function (item) {
+        return item.offer.features.includes(currentValue);
+      });
+    };
+
+    var filteredCheckbox = function () {
+      var checkboxesCheckedElement = document.querySelectorAll('.map__checkbox:checked');
+      if (checkboxesCheckedElement.length !== 0) {
+        var checkedFeatures = [];
+        checkboxesCheckedElement.forEach(function (item) {
+          checkedFeatures.push(item.value);
+        });
+        checkedFeatures.some(isFeatuesThere);
+      }
+    };
+
+    filteredRadio();
+    filteredCheckbox();
 
     window.pin.render(filteredArr);
-  };
-
-  window.filter = {
-    unchekedFilters: unchekedFilters,
-    getXhrArray: getXhrArray,
   };
 })();

@@ -1,11 +1,13 @@
 'use strict';
 
 (function () {
+  var MAP_WIDTH = 1200;
+  var MAP_HEIGHT = 630;
   var MAIN_PIN_WIDTH = 65;
   var MAIN_PIN_HEIGHT = 75;
-  var MAX_RIGHT_PIN = 1200 - (MAIN_PIN_WIDTH / 2);
+  var MAX_RIGHT_PIN = MAP_WIDTH - (MAIN_PIN_WIDTH / 2);
   var MAX_LEFT_PIN = 0 - (MAIN_PIN_WIDTH / 2);
-  var MAX_BOTTOM_PIN = 630 - MAIN_PIN_HEIGHT;
+  var MAX_BOTTOM_PIN = MAP_HEIGHT - MAIN_PIN_HEIGHT;
   var MAX_TOP_PIN = 55;
   var METHOD_GET = 'GET';
   var URL_LOAD = 'https://js.dump.academy/keksobooking/data';
@@ -17,7 +19,7 @@
 
   var successLoad = function (arr) {
     window.pin.render(arr);
-    window.filter.getXhrArray(arr);
+    window.getXhrArray(arr);
   };
 
   var errorLoad = function (errorMessage) {
@@ -77,7 +79,6 @@
     window.form.delUserPhotos();
     window.form.formElement.reset();
     filterFormElement.reset();
-    window.filter.unchekedFilters();
 
     window.card.close();
 
@@ -89,7 +90,7 @@
   };
 
   var setAdress = function () {
-    window.form.address.value = 'x: ' + calcXPin(parseInt(mainPinElement.style.left, 10), -MAIN_PIN_WIDTH) + ', y: ' + calcYPin(parseInt(mainPinElement.style.top, 10), -MAIN_PIN_HEIGHT);
+    window.form.address.value = calcXPin(parseInt(mainPinElement.style.left, 10), -MAIN_PIN_WIDTH) + ', ' + calcYPin(parseInt(mainPinElement.style.top, 10), -MAIN_PIN_HEIGHT);
   };
 
   var movingPin = function (evt) {

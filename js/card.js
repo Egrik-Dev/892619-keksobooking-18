@@ -26,21 +26,21 @@
     cardElement.querySelector('.popup__avatar').src = arrItem.author.avatar;
 
     featuresElement.innerHTML = '';
-    for (var i = 0; i < arrItem.offer.features.length; i++) {
+    arrItem.offer.features.forEach(function (item) {
       var newFeatureElement = document.createElement('li');
       newFeatureElement.classList.add('popup__feature');
-      newFeatureElement.classList.add('popup__feature--' + arrItem.offer.features[i]);
+      newFeatureElement.classList.add('popup__feature--' + item);
       featuresElement.append(newFeatureElement);
-    }
+    });
 
     photosElement.innerHTML = '';
-    for (var j = 0; j < arrItem.offer.photos.length; j++) {
+    arrItem.offer.photos.forEach(function (item, index) {
       var photoTemplate = photoElement.cloneNode(true);
       photosElement.append(photoTemplate);
       var allPhotosElement = cardElement.querySelectorAll('.popup__photo');
-      var popupPhoto = allPhotosElement[j];
-      popupPhoto.src = arrItem.offer.photos[j];
-    }
+      var popupPhoto = allPhotosElement[index];
+      popupPhoto.src = item;
+    });
 
     return cardElement;
   };
@@ -62,7 +62,7 @@
 
   var onCardEscPress = function (evt) {
     window.util.isEscEvent(evt, closeCard);
-    window.pin.delActivePin();
+    window.util.isEscEvent(evt, window.pin.delActivePin);
   };
 
   var closeCard = function () {
